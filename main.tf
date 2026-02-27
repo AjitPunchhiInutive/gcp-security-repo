@@ -2,8 +2,7 @@ locals {
 
   # Load ALL org-policy YAML files across all folders
   org_policy_config_files = fileset(
-    "config/org-policy",
-    "*/*.yaml"
+    "config/org-policy","*/*.yaml"
   )
 
   org_policy_objects = [
