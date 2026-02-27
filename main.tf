@@ -2,14 +2,14 @@ locals {
 
   # Load ALL org-policy YAML files across all folders
   org_policy_config_files = fileset(
-    "${path.module}/config/org-policy",
+    "config/org-policy",
     "*/*.yaml"
   )
 
   org_policy_objects = [
     for f in local.org_policy_config_files :
     yamldecode(
-      file("${path.module}/config/org-policy/${f}")
+      file("config/org-policy/${f}")
     )
   ]
 
