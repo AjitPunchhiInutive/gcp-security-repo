@@ -1,22 +1,34 @@
 locals {
-  # Load only sw-unified-data-platform YAML files
+
+  # Load ALL org-policy YAML files across all folders
   org_policy_config_files = fileset(
-    "${path.module}/config/org-policy/sw-unified-data-platform",
-    "*.yaml"
+    "${path.module}/config/org-policy",
+    "*/*.yaml"
   )
 
   org_policy_objects = [
     for f in local.org_policy_config_files :
     yamldecode(
-      file("${path.module}/config/org-policy/sw-unified-data-platform/${f}")
+      file("${path.module}/config/org-policy/${f}")
     )
+  ]
+
+  # Filter only deploy=true policies
+  active_org_policies = [
+    for p in local.org_policy_objects :
+    p if lookup(p, "deploy", false) == true
   ]
 }
 
 module "orgpolicy" {
+
   source = "git::ssh://git@github.com/AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
 
-  count = length(local.org_policy_objects) > 0 ? 1 : 0
+  # Create one module instance per YAML
+  for_each = {
+    for idx, policy in local.active_org_policies :
+    idx => policy
+  }
 
-  org_policies = local.org_policy_objects[0]
+  org_policies = each.value
 }
