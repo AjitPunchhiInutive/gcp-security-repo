@@ -12,7 +12,8 @@ locals {
 }
 
 module "orgpolicy" {
-  source = "git::https://github.com/AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
+  # SSH module source (correct Terraform format)
+  source = "git::ssh://git@github.com/AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
 
   count = length(local.org_policy_objects) > 0 ? 1 : 0
 
