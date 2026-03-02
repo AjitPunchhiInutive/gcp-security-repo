@@ -120,7 +120,7 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Remove Old V1 Org Policy State
+      - name: Remove Old V1 Org Policy State file
         run: |
           # Remove old V1 folder policy state entries if they exist
           for resource in \
