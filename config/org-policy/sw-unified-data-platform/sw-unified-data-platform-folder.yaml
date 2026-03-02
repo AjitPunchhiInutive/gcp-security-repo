@@ -9,7 +9,7 @@ folder_id: "1048391613319"
 policy_boolean:
 
   # ── KMS ──────────────────────────────────────────────────────────────────
-  constraints/cloudkms.disableBeforeDestroy: true                           # Prevent key destruction without scheduled delay
+  constraints/cloudkms.disableBeforeDestroy: false                          # Prevent key destruction without scheduled delay
 
   # ── Storage ──────────────────────────────────────────────────────────────
   constraints/storage.publicAccessPrevention: true                            #  Boolean — blocks allUsers/allAuthenticatedUsers on all buckets
