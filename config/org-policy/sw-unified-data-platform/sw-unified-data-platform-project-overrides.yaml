@@ -1,27 +1,9 @@
-# ──────────────────────────────────────────────────────────────────────────────
-# Project-level Org Policy Configuration
-# NOTE: Set ONLY folder_id OR project_id — never both at the same time.
-# ──────────────────────────────────────────────────────────────────────────────
-
 deploy: false
-
-# ── Target: Project (comment out if using folder) ────────────────────────────
-project_id: "sw-udp-rds-prod"
-
-# ── Target: Folder (uncomment if using folder, comment out project_id above) ──
-# folder_id: "178656066119"
-
-# ── Boolean Constraints ───────────────────────────────────────────────────────
-# true  = constraint enforced
-# false = constraint NOT enforced
+project_id: ""
 policy_boolean:
   constraints/iam.disableServiceAccountKeyCreation: true
   constraints/iam.NoServiceAccountExternalKeyCreation: true
   constraints/iam.disableServiceAccountKeyUpload: false
-
-# ── List Constraints ──────────────────────────────────────────────────────────
-# status: true  = values listed are ALLOWED
-# status: false = values listed are DENIED
 policy_list:
   constraints/iam.allowedPolicyMemberDomains:
     inherit_from_parent: false
