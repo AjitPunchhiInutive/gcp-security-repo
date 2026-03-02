@@ -3,7 +3,7 @@
 # NOTE: Set ONLY folder_id OR project_id — never both at the same time.
 # ──────────────────────────────────────────────────────────────────────────────
 
-deploy: true
+deploy: false
 
 # ── Target: Project (comment out if using folder) ────────────────────────────
 project_id: "sw-udp-rds-prod"
