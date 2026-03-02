@@ -130,10 +130,10 @@ policy_list:
 
   constraints/compute.restrictLoadBalancerCreationForTypes:
     inherit_from_parent: false
-    suggested_value: ""
     status: true
     values:
-      - "INTERNAL"                                                            #  Only internal LBs allowed
+      allowed_vlaues:
+      - "in:INTERNAL"                                                            #  Only internal LBs allowed
 
   constraints/compute.restrictSharedVpcHostProjects:
     inherit_from_parent: false
