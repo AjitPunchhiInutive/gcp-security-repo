@@ -17,7 +17,7 @@ locals {
 }
 
 module "orgpolicy" {
-  source = "git::ssh://git@github.com/AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
+  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
 
   for_each = {
     for idx, policy in local.active_org_policies :
