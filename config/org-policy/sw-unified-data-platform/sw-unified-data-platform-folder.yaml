@@ -132,7 +132,6 @@ policy_list:
     inherit_from_parent: false
     status: true
     values:
-      allowed_values:
       - "is:INTERNAL"                                                            #  Only internal LBs allowed
 
   constraints/compute.restrictSharedVpcHostProjects:
