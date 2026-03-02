@@ -44,9 +44,9 @@ policy_boolean:
   constraints/iam.disableServiceAccountCreation: true                         # ⚠ VERY RESTRICTIVE — blocks ALL SA creation in folder
 
   # ── IAM Managed (V2 multi-dot constraints) ───────────────────────────────
-  # constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  #  Block Owner/Editor on default SAs
-  #constraints/iam.managed.disableServiceAccountApiKeyCreation: true          #  Disable SA API key creation (managed V2)
-  #constraints/iam.managed.disableServiceAccountKeyCreation: true             #  Disable SA key creation (managed V2)
+  constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  #  Block Owner/Editor on default SAs
+  constraints/iam.managed.disableServiceAccountApiKeyCreation: true          #  Disable SA API key creation (managed V2)
+  constraints/iam.managed.disableServiceAccountKeyCreation: true             #  Disable SA key creation (managed V2)
 
   # ── AI Notebooks ─────────────────────────────────────────────────────────
   constraints/ainotebooks.disableRootAccess: true                            # Disable root in notebook instances
@@ -59,16 +59,16 @@ policy_boolean:
 
   # ── Dataflow Managed (V2 multi-dot constraints) ──────────────────────────
   #constraints/dataflow.managed.disableUsePublicIps: true                     # Disable public IPs for Dataflow (managed V2)
-  #constraints/dataflow.managed.blockProjectSshKeys: true                     # Block project-level SSH keys for Dataflow (managed V2)
+  constraints/dataflow.managed.blockProjectSshKeys: true                     # Block project-level SSH keys for Dataflow (managed V2)
 
   # ── Datastream ───────────────────────────────────────────────────────────
   constraints/datastream.disablePublicConnectivity: true                     # Disable public connectivity for Datastream
 
   # ── Cloud Run Managed (V2 multi-dot constraint) ──────────────────────────
-  #constraints/run.managed.requireInvokerIam: true                            # Require IAM authentication for Cloud Run invokers
+  constraints/run.managed.requireInvokerIam: true                            # Require IAM authentication for Cloud Run invokers
 
   # ── Compute Managed (V2 multi-dot constraint) ────────────────────────────
-  #constraints/compute.managed.blockPreviewFeatures: true                     # Block preview/beta Compute features
+  constraints/compute.managed.blockPreviewFeatures: true                     # Block preview/beta Compute features
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -108,12 +108,12 @@ policy_list:
     values: []                                                                #  Empty allow = deny ALL IP forwarding on VMs
                                                                               #   This blocks NAT VMs, VPN VMs, etc. Confirm if intentional.
 
-  # constraints/compute.managed.allowedVlanAttachmentEncryption:
-  #   inherit_from_parent: false
-  #   suggested_value: ""
-  #   status: true
-  #   values:
-  #     - "IPSEC"                                                               #  Only allow IPSEC-encrypted VLAN attachments
+  constraints/compute.managed.allowedVlanAttachmentEncryption:
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "IPSEC"                                                               #  Only allow IPSEC-encrypted VLAN attachments
 
   constraints/compute.requireSslPolicy:
     inherit_from_parent: false
