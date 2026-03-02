@@ -53,6 +53,22 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Remove Old V1 Org Policy State file
+        run: |
+          # Remove old V1 folder policy state entries if they exist
+          for resource in \
+            'module.orgpolicy["1"].google_folder_organization_policy.boolean_policies' \
+            'module.orgpolicy["1"].google_folder_organization_policy.list_policies' \
+            'module.orgpolicy["1"].google_project_organization_policy.boolean_policies' \
+            'module.orgpolicy["1"].google_project_organization_policy.list_policies'; do
+            if terraform state list | grep -qF "$resource"; then
+              echo "Removing: $resource"
+              terraform state rm "$resource"
+            else
+              echo "Not found in state (skipping): $resource"
+            fi
+          done
+
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
 
@@ -119,22 +135,6 @@ jobs:
 
       - name: Terraform Validate
         run: terraform validate
-
-      - name: Remove Old V1 Org Policy State file
-        run: |
-          # Remove old V1 folder policy state entries if they exist
-          for resource in \
-            'module.orgpolicy["1"].google_folder_organization_policy.boolean_policies' \
-            'module.orgpolicy["1"].google_folder_organization_policy.list_policies' \
-            'module.orgpolicy["1"].google_project_organization_policy.boolean_policies' \
-            'module.orgpolicy["1"].google_project_organization_policy.list_policies'; do
-            if terraform state list | grep -qF "$resource"; then
-              echo "Removing: $resource"
-              terraform state rm "$resource"
-            else
-              echo "Not found in state (skipping): $resource"
-            fi
-          done
 
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
