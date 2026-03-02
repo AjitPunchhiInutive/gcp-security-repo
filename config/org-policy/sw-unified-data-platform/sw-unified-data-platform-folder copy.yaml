@@ -1,8 +1,8 @@
-deploy: false
+deploy: false 
 folder_id: "1048391613319"
 
 policy_boolean:
-  constraints/cloudkms.disableBeforeDestroy: true
+  constraints/cloudkms.disableBeforeDestroy: true 
   constraints/storage.publicAccessPrevention: true
   constraints/storage.uniformBucketLevelAccess: true
   constraints/gcp.detailedAuditLoggingMode: true

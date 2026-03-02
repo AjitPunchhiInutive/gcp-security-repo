@@ -1,5 +1,5 @@
 deploy: false
-project_id: ""
+project_id: "sq-dev-test-prj-demo1"
 policy_boolean:
   constraints/iam.disableServiceAccountKeyCreation: true
   constraints/iam.NoServiceAccountExternalKeyCreation: true
