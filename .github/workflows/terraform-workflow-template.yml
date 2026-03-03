@@ -140,7 +140,8 @@ jobs:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # APPLY — Runs after the second plan succeeds
-# Uses the fresh plan generated after approval
+# Imports existing GCP resources into state before applying (idempotent)
+# This permanently resolves 409 "entity already exists" errors
 # ─────────────────────────────────────────────────────────────────────────────
   terraform-apply:
     name: Terraform Apply
@@ -178,6 +179,33 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      # ── Import existing managed policies into state (idempotent) ──────────
+      # Uses || true so steps are silently skipped if already in state.
+      # Safe to run on every apply — will never overwrite or break anything.
+      - name: Import existing managed boolean policies into state
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Importing existing GCP policies into Terraform state"
+          echo "(silently skipped if already imported)"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+          terraform import \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.disableServiceAccountKeyCreation"]' \
+            folders/1048391613319/policies/iam.managed.disableServiceAccountKeyCreation \
+            || true
+
+          terraform import \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.blockProjectSshKeys"]' \
+            folders/1048391613319/policies/dataflow.managed.blockProjectSshKeys \
+            || true
+
+          terraform import \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts"]' \
+            folders/1048391613319/policies/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts \
+            || true
+
+          echo "Import step complete"
+
       - name: Download Plan Artifact
         uses: actions/download-artifact@v4
         with:
@@ -191,81 +219,4 @@ jobs:
         run: |
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo "Terraform Apply completed successfully"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# IMPORT — Standalone job, only runs when manually triggered
-# Triggered via: Actions tab → "Terraform Action Workflow Template" → Run workflow
-# Purpose: Import GCP resources that already exist into Terraform state
-# to resolve 409 "entity already exists" errors on managed boolean policies
-# ─────────────────────────────────────────────────────────────────────────────
-  terraform-import:
-    name: Terraform Import (Manual Only)
-    runs-on: ubuntu-latest
-    # Only runs on manual workflow_dispatch, never on PR
-    if: github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      id-token: write
-      actions:  read
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup SSH Key for Private Module Access
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          project_id:                 ${{ secrets.GCP_PROJECT_ID }}
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account:            ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Import constraints/iam.managed.disableServiceAccountKeyCreation
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Importing iam.managed.disableServiceAccountKeyCreation"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          terraform import \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.disableServiceAccountKeyCreation"]' \
-            folders/1048391613319/policies/iam.managed.disableServiceAccountKeyCreation
-
-      - name: Import constraints/dataflow.managed.blockProjectSshKeys
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Importing dataflow.managed.blockProjectSshKeys"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          terraform import \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.blockProjectSshKeys"]' \
-            folders/1048391613319/policies/dataflow.managed.blockProjectSshKeys
-
-      - name: Import constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Importing iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          terraform import \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts"]' \
-            folders/1048391613319/policies/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts
-
-      - name: Import Complete
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "All 3 resources imported into Terraform state"
-          echo "409 errors will be resolved on next apply"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
