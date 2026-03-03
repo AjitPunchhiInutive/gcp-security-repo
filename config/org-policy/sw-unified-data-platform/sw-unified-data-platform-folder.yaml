@@ -36,9 +36,6 @@ policy_boolean:
   constraints/compute.disableHybridCloudIpv6: true
   constraints/compute.disableInternetNetworkEndpointGroup: true
   constraints/compute.disableVpcExternalIpv6: true
-
-  # FIX: compute.managed.allowedVlanAttachmentEncryption is a BooleanConstraint
-  # per GCP API — cannot be set as a list policy. Setting true enforces IPSEC only.
   constraints/compute.managed.allowedVlanAttachmentEncryption: true
 
   # ── IAM ──────────────────────────────────────────────────────────────────
@@ -70,13 +67,14 @@ policy_boolean:
   # ── Cloud Run Managed (V2) ────────────────────────────────────────────────
   constraints/run.managed.requireInvokerIam: true
 
-  # ── Compute Managed (V2) ──────────────────────────────────────────────────
+  # ── Compute Managed (V2) ─────────────────────────────────────────────────
   constraints/compute.managed.blockPreviewFeatures: true
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LIST POLICIES
 # status: true  + values = ALLOW only listed values
+# status: false + values: [] = DENY ALL (maps to deny { all = true } in API)
 # status: false + values = DENY listed values
 # ─────────────────────────────────────────────────────────────────────────────
 policy_list:
@@ -90,13 +88,10 @@ policy_list:
       - "90d"
 
   # ── Compute ──────────────────────────────────────────────────────────────
-  # FIX: "DENY ALL" via empty allow list rejected by legacy API for this constraint.
-  # Using deny mode (status: false) with all=true equivalent via no values.
-  # Remove this block if the module does not support deny_all natively.
   constraints/compute.vmExternalIpAccess:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/compute.requireVpcFlowLogs:
@@ -109,27 +104,20 @@ policy_list:
   constraints/compute.vmCanIpForward:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/compute.requireSslPolicy:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/compute.sharedReservationsOwnerProjects:
-    inherit_from_parent: true
-    suggested_value: ""
-    status: true
-    values: []
-
-  # FIX: "is:INTERNAL" is invalid — correct value is "INTERNAL"
-  constraints/compute.restrictLoadBalancerCreationForTypes:
     inherit_from_parent: false
-    status: true
-    values:
-      - "INTERNAL"
+    suggested_value: ""
+    status: false
+    values: []
 
   constraints/compute.restrictSharedVpcHostProjects:
     inherit_from_parent: false
@@ -152,50 +140,39 @@ policy_list:
   constraints/compute.restrictCloudNATUsage:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/compute.restrictDedicatedInterconnectUsage:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/compute.restrictPartnerInterconnectUsage:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/compute.restrictVpnPeerIPs:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   # ── IAM ──────────────────────────────────────────────────────────────────
   constraints/iam.serviceAccountKeyExposureResponse:
-    inherit_from_parent: true
+    inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/iam.allowServiceAccountCredentialLifetimeExtension:
-    inherit_from_parent: true
-    suggested_value: ""
-    status: true
-    values: []
-
-  # FIX: "2160" rejected by GCP legacy API for this constraint.
-  # Valid accepted values are: "1", "8", "168", "720", "1440"
-  # 2160h (90 days) is not accepted — using 1440h (60 days) as closest valid value.
-  # Change to "168" (7d), "720" (30d), or "1440" (60d) as appropriate.
-  constraints/iam.serviceAccountKeyExpiryHours:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
-    values:
-      - "1440"
+    status: false
+    values: []
 
   # ── GCP Resources ────────────────────────────────────────────────────────
   constraints/gcp.resourceLocations:
@@ -218,20 +195,18 @@ policy_list:
 
   # ── Resource Manager ─────────────────────────────────────────────────────
   constraints/resourcemanager.allowedImportSources:
-    inherit_from_parent: true
+    inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/resourcemanager.allowedExportDestinations:
-    inherit_from_parent: true
+    inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   # ── Storage ──────────────────────────────────────────────────────────────
-  # FIX: "ALL" and "HMAC_SIGNED_REQUESTS" are invalid allow values.
-  # Excel says: DENY > in:ALL_HMAC_SIGNED_REQUESTS — using deny mode (status: false).
   constraints/storage.restrictAuthTypes:
     inherit_from_parent: false
     suggested_value: ""
@@ -254,8 +229,6 @@ policy_list:
       - "2592000"
 
   # ── AI Notebooks ─────────────────────────────────────────────────────────
-  # FIX: "DenyServiceAccount" is invalid. Excel says: DENY > service-account.
-  # Using deny mode (status: false) with correct value "service-account".
   constraints/ainotebooks.accessMode:
     inherit_from_parent: false
     suggested_value: ""
@@ -266,57 +239,57 @@ policy_list:
   constraints/ainotebooks.environmentOptions:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/ainotebooks.restrictVpcNetworks:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   # ── Vertex AI ────────────────────────────────────────────────────────────
   constraints/vertexai.allowedGenAIModels:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/vertexai.allowedModels:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/vertexai.allowedPartnerModelFeatures:
-    inherit_from_parent: true
+    inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   # ── Cloud Run ────────────────────────────────────────────────────────────
   constraints/run.allowedIngress:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   constraints/run.allowedVPCEgress:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   # ── Dataform ─────────────────────────────────────────────────────────────
   constraints/dataform.restrictGitRemotes:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
 
   # ── Commerce / Marketplace ───────────────────────────────────────────────
   constraints/commerceorggovernance.disablePublicMarketplace:
-    inherit_from_parent: true
+    inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values: []
