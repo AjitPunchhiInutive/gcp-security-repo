@@ -1,7 +1,5 @@
 locals {
   org_policy_config_files = [
-    "sw-ent-networking/sw-ent-networking-folder.yaml",
-    "sw-ent-security/sw-ent-security-folder.yaml",
     "sw-unified-data-platform/sw-unified-data-platform-folder.yaml",
   ]
 
