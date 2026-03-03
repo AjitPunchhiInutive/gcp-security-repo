@@ -29,8 +29,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: false                        # FIX 1: prevents submodule error on -sw-prod-udp-rds-infra-modules
 
       - name: Setup SSH Key for Private Module Access
         uses: webfactory/ssh-agent@v0.9.0
@@ -48,38 +46,61 @@ jobs:
           project_id:  ${{ secrets.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}
+      
+    #   - name: Install tfsec
+    #     run: |
+    #       wget -q https://github.com/aquasecurity/tfsec/releases/download/v${{ env.TFSEC_VERSION }}/tfsec-linux-amd64 -O tfsec
+    #       chmod +x tfsec
+    #       sudo mv tfsec /usr/local/bin/tfsec
+    #       tfsec --version
 
+    #   - name: Run tfsec scan
+    #     run: |
+    #       echo "scanning directory: $(pwd)"
+    #       tfsec . --soft-fail
+    #       echo "tfsec scan complete"
+      
+    #   - name: Save tfsec SARIF report
+    #     if: always()
+    #     run: |
+    #       tfsec . --format sarif --soft-fail > tfsec.sarif || true
+          
+    #   - name: Upload tfsec results to GitHub Security tab
+    #     uses: github/codeql-action/upload-sarif@v3
+    #     if: always()
+    #     with:
+    #       sarif_file: tfsec.sarif
+
+    #   - name: Save tfsec report as artifact
+    #     uses: actions/upload-artifact@v4
+    #     if: always()
+    #     with:
+    #       name: tfsec-report
+    #       path: tfsec.sarif
+    #       retention-days: 30
+      
       - name: Terraform Init
         run: terraform init
-
-      - name: Remove stale project-overrides state entries  # FIX 2: clears REPLACE_WITH_NONPROD_FOLDER_ID from GCS state
-        run: |
-          terraform state rm \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-project-overrides.yaml"].google_folder_organization_policy.list_policies["constraints/gcp.restrictServiceUsage"]' \
-            || true
-          terraform state rm \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-project-overrides.yaml"].google_folder_organization_policy.list_policies["constraints/storage.softDeletePolicySeconds"]' \
-            || true
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan  # FIX 3: was bootstrap.tfvars
+        run: terraform plan -var-file=bootstrap.tfvars -out=tfplan
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: ${{ env.WORKING_DIR }}/tfplan
-          retention-days: 1
+          retention-days:    1
 
   approval:
     needs: terraform-plan
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    environment:
+    environment: 
       name: terraform
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
@@ -97,7 +118,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      actions: read
+      actions:  read
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}
@@ -105,8 +126,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: false                        # FIX 1
 
       - name: Setup SSH Key for Private Module Access
         uses: webfactory/ssh-agent@v0.9.0
@@ -128,20 +147,12 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Remove stale project-overrides state entries  # FIX 2
-        run: |
-          terraform state rm \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-project-overrides.yaml"].google_folder_organization_policy.list_policies["constraints/gcp.restrictServiceUsage"]' \
-            || true
-          terraform state rm \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-project-overrides.yaml"].google_folder_organization_policy.list_policies["constraints/storage.softDeletePolicySeconds"]' \
-            || true
-
       - name: Terraform Validate
         run: terraform validate
 
+      # Fresh plan after approval — this is the plan that will be applied
       - name: Terraform Plan
-        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan  # FIX 3
+        run: terraform plan -var-file=bootstrap.tfvars -out=tfplan
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
@@ -152,6 +163,7 @@ jobs:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # APPLY — Runs after the second plan succeeds
+# Uses the fresh plan generated after approval
 # ─────────────────────────────────────────────────────────────────────────────
   terraform-apply:
     name: Terraform Apply
@@ -160,7 +172,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      actions: read
+      actions:  read
     defaults:
       run:
         working-directory: ${{ env.WORKING_DIR }}
@@ -168,8 +180,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: false                        # FIX 1
 
       - name: Setup SSH Key for Private Module Access
         uses: webfactory/ssh-agent@v0.9.0
@@ -191,6 +201,7 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      # Download the fresh plan generated after approval
       - name: Download Plan Artifact
         uses: actions/download-artifact@v4
         with:
