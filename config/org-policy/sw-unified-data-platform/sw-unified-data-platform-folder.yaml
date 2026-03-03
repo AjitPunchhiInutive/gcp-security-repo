@@ -37,6 +37,7 @@ policy_boolean:
   constraints/compute.disableInternetNetworkEndpointGroup: true
   constraints/compute.disableVpcExternalIpv6: true
   constraints/compute.managed.allowedVlanAttachmentEncryption: true
+  constraints/compute.managed.blockPreviewFeatures: true
 
   # ── IAM ──────────────────────────────────────────────────────────────────
   constraints/iam.disableAuditLoggingExemption: true
@@ -67,15 +68,15 @@ policy_boolean:
   # ── Cloud Run Managed (V2) ────────────────────────────────────────────────
   constraints/run.managed.requireInvokerIam: true
 
-  # ── Compute Managed (V2) ─────────────────────────────────────────────────
-  constraints/compute.managed.blockPreviewFeatures: true
+  # ── Commerce — BooleanConstraint confirmed by GCP API ────────────────────
+  constraints/commerceorggovernance.disablePublicMarketplace: true
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LIST POLICIES
-# status: true  + values = ALLOW only listed values
-# status: false + values: [] = DENY ALL (maps to deny { all = true } in API)
-# status: false + values = DENY listed values
+# status: true  + values       = ALLOW only listed values
+# status: false + values: []   = DENY ALL  (deny { all = true })
+# status: false + values: [...] = DENY listed values
 # ─────────────────────────────────────────────────────────────────────────────
 policy_list:
 
@@ -162,12 +163,6 @@ policy_list:
     values: []
 
   # ── IAM ──────────────────────────────────────────────────────────────────
-  constraints/iam.serviceAccountKeyExposureResponse:
-    inherit_from_parent: false
-    suggested_value: ""
-    status: false
-    values: []
-
   constraints/iam.allowServiceAccountCredentialLifetimeExtension:
     inherit_from_parent: false
     suggested_value: ""
@@ -282,13 +277,6 @@ policy_list:
 
   # ── Dataform ─────────────────────────────────────────────────────────────
   constraints/dataform.restrictGitRemotes:
-    inherit_from_parent: false
-    suggested_value: ""
-    status: false
-    values: []
-
-  # ── Commerce / Marketplace ───────────────────────────────────────────────
-  constraints/commerceorggovernance.disablePublicMarketplace:
     inherit_from_parent: false
     suggested_value: ""
     status: false
