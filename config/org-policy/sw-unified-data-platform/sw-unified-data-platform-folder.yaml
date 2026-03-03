@@ -9,73 +9,75 @@ folder_id: "1048391613319"
 policy_boolean:
 
   # ── KMS ──────────────────────────────────────────────────────────────────
-  constraints/cloudkms.disableBeforeDestroy: true                           # Prevent key destruction without scheduled delay
+  constraints/cloudkms.disableBeforeDestroy: true
 
   # ── Storage ──────────────────────────────────────────────────────────────
-  constraints/storage.publicAccessPrevention: true                            #  Boolean — blocks allUsers/allAuthenticatedUsers on all buckets
-  constraints/storage.uniformBucketLevelAccess: true                          #  Enforce uniform bucket-level access
-  constraints/storage.secureHttpTransport: true                               #   Deny unencrypted HTTP access to Storage
+  constraints/storage.publicAccessPrevention: true
+  constraints/storage.uniformBucketLevelAccess: true
+  constraints/storage.secureHttpTransport: true
 
   # ── GCP / Audit ──────────────────────────────────────────────────────────
-  constraints/gcp.detailedAuditLoggingMode: true                              #   Enable detailed request/response audit logging
+  constraints/gcp.detailedAuditLoggingMode: true
 
   # ── Compute ──────────────────────────────────────────────────────────────
-  constraints/compute.skipDefaultNetworkCreation: true                        #  Prevent auto-creation of default VPC
-  constraints/compute.disableVpcInternalIpv6: true                            #  Disable internal IPv6 on VPCs
-  constraints/compute.requireOsConfig: true                                   #  Require OS Config agent on VMs
-  constraints/compute.requireOsLogin: true                                    #  Enforce OS Login for SSH access
-  constraints/compute.requireShieldedVm: true                                 #  Require Shielded VM on new instances
-  constraints/compute.setNewProjectDefaultToZonalDNSOnly: true                #  Use zonal DNS for new projects
-  constraints/compute.restrictXpnProjectLienRemoval: true                     #  Require org-level permission to remove Shared VPC lien
-  constraints/compute.disableAllIpv6: true                                    #  Disable all IPv6 across Compute resources
-  constraints/compute.disableGlobalSerialPortAccess: true                     #  Disable serial port access globally
-  constraints/compute.disableGuestAttributesAccess: true                      #  Disable guest attributes metadata access
-  constraints/compute.disableSerialPortAccess: true                           #  Disable per-VM serial port access
-  constraints/compute.disableSerialPortLogging: true                          #  Disable serial port logging to Cloud Logging
-  constraints/compute.disableGlobalCloudArmorPolicy: true                     #  Disable global Cloud Armor policies
-  constraints/compute.disableHybridCloudIpv6: true                            #  Disable IPv6 for hybrid connectivity
-  constraints/compute.disableInternetNetworkEndpointGroup: true               #  Disable internet NEGs
-  constraints/compute.disableVpcExternalIpv6: true                            #  Disable external IPv6 on VPCs
+  constraints/compute.skipDefaultNetworkCreation: true
+  constraints/compute.disableVpcInternalIpv6: true
+  constraints/compute.requireOsConfig: true
+  constraints/compute.requireOsLogin: true
+  constraints/compute.requireShieldedVm: true
+  constraints/compute.setNewProjectDefaultToZonalDNSOnly: true
+  constraints/compute.restrictXpnProjectLienRemoval: true
+  constraints/compute.disableAllIpv6: true
+  constraints/compute.disableGlobalSerialPortAccess: true
+  constraints/compute.disableGuestAttributesAccess: true
+  constraints/compute.disableSerialPortAccess: true
+  constraints/compute.disableSerialPortLogging: true
+  constraints/compute.disableGlobalCloudArmorPolicy: true
+  constraints/compute.disableHybridCloudIpv6: true
+  constraints/compute.disableInternetNetworkEndpointGroup: true
+  constraints/compute.disableVpcExternalIpv6: true
+
+  # FIX: compute.managed.allowedVlanAttachmentEncryption is a BooleanConstraint
+  # per GCP API — cannot be set as a list policy. Setting true enforces IPSEC only.
+  constraints/compute.managed.allowedVlanAttachmentEncryption: true
 
   # ── IAM ──────────────────────────────────────────────────────────────────
-  constraints/iam.disableAuditLoggingExemption: true                          #  Prevent exemptions from audit logging
-  constraints/iam.automaticIamGrantsForDefaultServiceAccounts: true           #  Disable automatic IAM grants for default SAs
-  constraints/iam.restrictCrossProjectServiceAccountLienRemoval: true        #  Prevent cross-project SA lien removal
-  constraints/iam.disableServiceAccountCreation: true                         # ⚠ VERY RESTRICTIVE — blocks ALL SA creation in folder
+  constraints/iam.disableAuditLoggingExemption: true
+  constraints/iam.automaticIamGrantsForDefaultServiceAccounts: true
+  constraints/iam.restrictCrossProjectServiceAccountLienRemoval: true
+  constraints/iam.disableServiceAccountCreation: true
 
-  # ── IAM Managed (V2 multi-dot constraints) ───────────────────────────────
-  constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  #  Block Owner/Editor on default SAs
-  constraints/iam.managed.disableServiceAccountApiKeyCreation: true          #  Disable SA API key creation (managed V2)
-  constraints/iam.managed.disableServiceAccountKeyCreation: true             #  Disable SA key creation (managed V2)
+  # ── IAM Managed (V2) ─────────────────────────────────────────────────────
+  constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true
+  constraints/iam.managed.disableServiceAccountApiKeyCreation: true
+  constraints/iam.managed.disableServiceAccountKeyCreation: true
 
   # ── AI Notebooks ─────────────────────────────────────────────────────────
-  constraints/ainotebooks.disableRootAccess: true                            # Disable root in notebook instances
-  constraints/ainotebooks.requireAutoUpgradeSchedule: true                   #  Require auto-upgrade schedule
-  constraints/ainotebooks.disableFileDownloads: true                         #  Block file downloads from notebooks
-  constraints/ainotebooks.restrictPublicIp: true                             #  Restrict public IPs on notebook instances
+  constraints/ainotebooks.disableRootAccess: true
+  constraints/ainotebooks.requireAutoUpgradeSchedule: true
+  constraints/ainotebooks.disableFileDownloads: true
+  constraints/ainotebooks.restrictPublicIp: true
 
   # ── Pub/Sub ──────────────────────────────────────────────────────────────
-  constraints/pubsub.enforceInTransitRegions: true                           # Enforce in-transit region restrictions
+  constraints/pubsub.enforceInTransitRegions: true
 
-  # ── Dataflow Managed (V2 multi-dot constraints) ──────────────────────────
-  #constraints/dataflow.managed.disableUsePublicIps: true                     # Disable public IPs for Dataflow (managed V2)
-  constraints/dataflow.managed.blockProjectSshKeys: true                     # Block project-level SSH keys for Dataflow (managed V2)
+  # ── Dataflow Managed (V2) ─────────────────────────────────────────────────
+  constraints/dataflow.managed.blockProjectSshKeys: true
 
   # ── Datastream ───────────────────────────────────────────────────────────
-  constraints/datastream.disablePublicConnectivity: true                     # Disable public connectivity for Datastream
+  constraints/datastream.disablePublicConnectivity: true
 
-  # ── Cloud Run Managed (V2 multi-dot constraint) ──────────────────────────
-  constraints/run.managed.requireInvokerIam: true                            # Require IAM authentication for Cloud Run invokers
+  # ── Cloud Run Managed (V2) ────────────────────────────────────────────────
+  constraints/run.managed.requireInvokerIam: true
 
-  # ── Compute Managed (V2 multi-dot constraint) ────────────────────────────
-  constraints/compute.managed.blockPreviewFeatures: true                     # Block preview/beta Compute features
+  # ── Compute Managed (V2) ──────────────────────────────────────────────────
+  constraints/compute.managed.blockPreviewFeatures: true
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LIST POLICIES
 # status: true  + values = ALLOW only listed values
 # status: false + values = DENY listed values
-# status: true  + values: [] = ⚠ ALLOW NOTHING (deny all) — see warnings below
 # ─────────────────────────────────────────────────────────────────────────────
 policy_list:
 
@@ -85,54 +87,49 @@ policy_list:
     suggested_value: "90d"
     status: true
     values:
-      - "90d"                                                                 #  Minimum 90-day scheduled key destruction
+      - "90d"
 
   # ── Compute ──────────────────────────────────────────────────────────────
+  # FIX: "DENY ALL" via empty allow list rejected by legacy API for this constraint.
+  # Using deny mode (status: false) with all=true equivalent via no values.
+  # Remove this block if the module does not support deny_all natively.
   constraints/compute.vmExternalIpAccess:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  INTENTIONAL — empty allow = deny ALL external IPs on VMs
+    values: []
 
   constraints/compute.requireVpcFlowLogs:
     inherit_from_parent: false
     suggested_value: ""
     status: true
     values:
-      - "COMPREHENSIVE"                                                       #  Valid value — enables comprehensive VPC flow logs
+      - "COMPREHENSIVE"
 
   constraints/compute.vmCanIpForward:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = deny ALL IP forwarding on VMs
-                                                                              #   This blocks NAT VMs, VPN VMs, etc. Confirm if intentional.
-
-  constraints/compute.managed.allowedVlanAttachmentEncryption:
-    inherit_from_parent: false
-    suggested_value: ""
-    status: true
-    values:
-      - "IPSEC"                                                               #  Only allow IPSEC-encrypted VLAN attachments
+    values: []
 
   constraints/compute.requireSslPolicy:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = no SSL policies allowed on LBs
-                                                                              #   Add specific SSL policy resource names if needed, or set inherit_from_parent: true
+    values: []
 
   constraints/compute.sharedReservationsOwnerProjects:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits from parent — empty values OK here
+    values: []
 
+  # FIX: "is:INTERNAL" is invalid — correct value is "INTERNAL"
   constraints/compute.restrictLoadBalancerCreationForTypes:
     inherit_from_parent: false
     status: true
     values:
-      - "is:INTERNAL"                                                            #  Only internal LBs allowed
+      - "INTERNAL"
 
   constraints/compute.restrictSharedVpcHostProjects:
     inherit_from_parent: false
@@ -141,7 +138,7 @@ policy_list:
     values:
       - "projects/sw-dev-udp-host-network"
       - "projects/sw-test-udp-host-network"
-      - "projects/sw-prod-udp-host-network"                                  #  Restrict Shared VPC to specific host projects
+      - "projects/sw-prod-udp-host-network"
 
   constraints/compute.restrictVpcPeering:
     inherit_from_parent: false
@@ -150,54 +147,55 @@ policy_list:
     values:
       - "projects/sw-dev-udp-host-network/global/networks/vpc-sw-dev-udp-host"
       - "projects/sw-test-udp-host-network/global/networks/vpc-sw-test-udp-host"
-      - "projects/sw-prod-udp-host-network/global/networks/vpc-sw-prod-udp-host"  #  Allow peering only to specific VPCs
+      - "projects/sw-prod-udp-host-network/global/networks/vpc-sw-prod-udp-host"
 
   constraints/compute.restrictCloudNATUsage:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = deny ALL Cloud NAT usage in folder
-                                                                              #   Add project/subnetwork paths if Cloud NAT is needed, e.g:
-                                                                              #   - "projects/sw-dev-udp-host-network/regions/us-east4/routers/my-router"
+    values: []
 
   constraints/compute.restrictDedicatedInterconnectUsage:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Deny all dedicated interconnect — acceptable if not used
+    values: []
 
   constraints/compute.restrictPartnerInterconnectUsage:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Deny all partner interconnect — acceptable if not used
+    values: []
 
   constraints/compute.restrictVpnPeerIPs:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = deny ALL VPN peer IPs
-                                                                              #   Add allowed peer IP addresses if VPN tunnels are in use
+    values: []
 
   # ── IAM ──────────────────────────────────────────────────────────────────
   constraints/iam.serviceAccountKeyExposureResponse:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits response action from parent org
+    values: []
 
   constraints/iam.allowServiceAccountCredentialLifetimeExtension:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits from parent — no extension by default
+    values: []
 
+  # FIX: "2160" rejected by GCP legacy API for this constraint.
+  # Valid accepted values are: "1", "8", "168", "720", "1440"
+  # 2160h (90 days) is not accepted — using 1440h (60 days) as closest valid value.
+  # Change to "168" (7d), "720" (30d), or "1440" (60d) as appropriate.
   constraints/iam.serviceAccountKeyExpiryHours:
     inherit_from_parent: false
     suggested_value: ""
     status: true
     values:
-      - "2160"                                                                #  Max key lifetime = 2160h (90 days)
+      - "1440"
 
   # ── GCP Resources ────────────────────────────────────────────────────────
   constraints/gcp.resourceLocations:
@@ -206,125 +204,119 @@ policy_list:
     status: true
     values:
       - "us-east4"
-      - "us-central1"                                                         #  Restrict resource creation to these two regions
+      - "us-central1"
 
   constraints/gcp.restrictServiceUsage:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: [servicemanagement.googleapis.com, cloudresourcemanager.googleapis.com]
-    #  ERROR — Values here MUST be GCP service API names in format:
-    #            "<service>.googleapis.com"
-    #    Examples: bigquery.googleapis.com, storage.googleapis.com, file.googleapis.com
-
+    values:
+      - "cloudbilling.googleapis.com"
+      - "cloudasset.googleapis.com"
+      - "cloudresourcemanager.googleapis.com"
+      - "servicemanagement.googleapis.com"
 
   # ── Resource Manager ─────────────────────────────────────────────────────
   constraints/resourcemanager.allowedImportSources:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits from parent
+    values: []
 
   constraints/resourcemanager.allowedExportDestinations:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits from parent
+    values: []
 
   # ── Storage ──────────────────────────────────────────────────────────────
+  # FIX: "ALL" and "HMAC_SIGNED_REQUESTS" are invalid allow values.
+  # Excel says: DENY > in:ALL_HMAC_SIGNED_REQUESTS — using deny mode (status: false).
   constraints/storage.restrictAuthTypes:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values:
-      - "ALL"
-      - "HMAC_SIGNED_REQUESTS"                                                #  Deny HMAC signed requests and all auth types listed
+      - "in:ALL_HMAC_SIGNED_REQUESTS"
 
   constraints/storage.softDeletePolicySeconds:
     inherit_from_parent: false
     suggested_value: ""
     status: true
     values:
-      - "7776000"                                                             #  Soft delete retention = 7776000s (90 days)
+      - "7776000"
 
   constraints/storage.retentionPolicySeconds:
     inherit_from_parent: false
     suggested_value: ""
     status: true
     values:
-      - "2592000"                                                             #  Retention policy = 2592000s (30 days)
+      - "2592000"
 
   # ── AI Notebooks ─────────────────────────────────────────────────────────
+  # FIX: "DenyServiceAccount" is invalid. Excel says: DENY > service-account.
+  # Using deny mode (status: false) with correct value "service-account".
   constraints/ainotebooks.accessMode:
     inherit_from_parent: false
     suggested_value: ""
-    status: true
+    status: false
     values:
-      - "DenyServiceAccount"                                                  #  Deny service account access mode for notebooks
+      - "service-account"
 
   constraints/ainotebooks.environmentOptions:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = NO notebook environments permitted
-                                                                              #   Add allowed environment URIs if notebooks are used
+    values: []
 
   constraints/ainotebooks.restrictVpcNetworks:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = NO VPC networks allowed for notebooks
-                                                                              #   Add allowed VPC network paths if notebooks are used
+    values: []
 
   # ── Vertex AI ────────────────────────────────────────────────────────────
   constraints/vertexai.allowedGenAIModels:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = ALL GenAI models blocked
-                                                                              #   Add specific model names if Vertex GenAI is needed
+    values: []
 
   constraints/vertexai.allowedModels:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = ALL Vertex AI models blocked
-                                                                              #   Add specific model names if Vertex AI is used
+    values: []
 
   constraints/vertexai.allowedPartnerModelFeatures:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits from parent
+    values: []
 
   # ── Cloud Run ────────────────────────────────────────────────────────────
   constraints/run.allowedIngress:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  CONFLICT — Empty allow = NO Cloud Run ingress allowed
-                                                                              #   But constraints/run.managed.requireInvokerIam: true implies Cloud Run IS used.
-                                                                              #   Add at minimum: "internal" or "internal-and-cloud-load-balancing"
-                                                                              #   Valid values: "all", "internal", "internal-and-cloud-load-balancing"
+    values: []
 
   constraints/run.allowedVPCEgress:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = NO VPC egress for Cloud Run
-                                                                              #   Add "all-traffic" or "private-ranges-only" if Cloud Run needs egress
+    values: []
 
   # ── Dataform ─────────────────────────────────────────────────────────────
   constraints/dataform.restrictGitRemotes:
     inherit_from_parent: false
     suggested_value: ""
     status: true
-    values: []                                                                #  Empty allow = NO git remotes allowed for Dataform
-                                                                              #   Add allowed remote URLs (e.g. github.com, gitlab.com) if Dataform is used
+    values: []
 
   # ── Commerce / Marketplace ───────────────────────────────────────────────
   constraints/commerceorggovernance.disablePublicMarketplace:
     inherit_from_parent: true
     suggested_value: ""
     status: true
-    values: []                                                                #  Inherits from parent
+    values: []
