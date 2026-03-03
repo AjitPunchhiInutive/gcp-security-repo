@@ -10,6 +10,7 @@ on:
 env:
   TF_VERSION: "1.6.3"
   WORKING_DIR: "."
+  #ENVIRONMENT: "dev"
   TFSEC_VERSION: "1.28.6"
 
 jobs:
@@ -28,6 +29,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: false                        # FIX 1: prevents submodule error on -sw-prod-udp-rds-infra-modules
 
       - name: Setup SSH Key for Private Module Access
         uses: webfactory/ssh-agent@v0.9.0
@@ -49,12 +52,7 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # ── One-time state cleanup ──────────────────────────────────────────
-      # Removes stale state entries created when project-overrides.yaml had
-      # folder_id: "REPLACE_WITH_NONPROD_FOLDER_ID" (a placeholder, not real).
-      # These entries cause "Error 400 badRequest" on every plan/apply.
-      # || true ensures the step does not fail if the entries are already gone.
-      - name: Remove stale project-overrides state entries
+      - name: Remove stale project-overrides state entries  # FIX 2: clears REPLACE_WITH_NONPROD_FOLDER_ID from GCS state
         run: |
           terraform state rm \
             'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-project-overrides.yaml"].google_folder_organization_policy.list_policies["constraints/gcp.restrictServiceUsage"]' \
@@ -67,7 +65,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
+        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan  # FIX 3: was bootstrap.tfvars
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
@@ -107,6 +105,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: false                        # FIX 1
 
       - name: Setup SSH Key for Private Module Access
         uses: webfactory/ssh-agent@v0.9.0
@@ -128,8 +128,7 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # ── One-time state cleanup (repeated for post-approval plan) ────────
-      - name: Remove stale project-overrides state entries
+      - name: Remove stale project-overrides state entries  # FIX 2
         run: |
           terraform state rm \
             'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-project-overrides.yaml"].google_folder_organization_policy.list_policies["constraints/gcp.restrictServiceUsage"]' \
@@ -142,7 +141,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
+        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan  # FIX 3
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
@@ -169,6 +168,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: false                        # FIX 1
 
       - name: Setup SSH Key for Private Module Access
         uses: webfactory/ssh-agent@v0.9.0
