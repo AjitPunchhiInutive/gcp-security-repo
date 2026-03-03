@@ -1,30 +1,19 @@
 locals {
+  org_policy_config_files = [
+    "sw-unified-data-platform/sw-unified-data-platform-folder.yaml",
+  ]
 
-  # WIF: list from config/wif/*.yaml
-  wif_config_files = fileset("config/wif", "*.yaml")
-  wif_objects = [for f in local.wif_config_files : yamldecode(file("config/wif/${f}"))]
-
-  # Folders: single object from config/folders.yaml (module expects only organization_id, parent_folders, sub_folders)
-  folder_config_files = fileset("config/folders", "*.yaml")
-  folders_raw         = length(local.folder_config_files) > 0 ? yamldecode(file("config/folders/folders.yaml")) : null
-  folders_objects     = local.folders_raw != null ? { organization_id = local.folders_raw.organization_id, parent_folders = local.folders_raw.parent_folders, sub_folders = local.folders_raw.sub_folders } : { organization_id = var.organization_id, parent_folders = {}, sub_folders = {} }
-
-  
-  project_config_files = fileset("config/project-factory", "*.yaml")
-  project_objects = [for f in local.project_config_files : yamldecode(file("config/project-factory/${f}"))]
-}
-  # Projects: list from config/projects/*.yaml
-module "wif_factory" {
-  source                         = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//wif-factory?ref=main"
-  github_workload_identity_factory = local.wif_objects
+  active_org_policies = {
+    for f in local.org_policy_config_files :
+    f => yamldecode(file("config/org-policy/${f}"))
+    if lookup(yamldecode(file("config/org-policy/${f}")), "deploy", false) == true
+  }
 }
 
-  module "folders" {
-  source          = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//folders?ref=main"
-  folders_objects = local.folders_objects
-}
+module "orgpolicy" {
+  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
 
-module "project-factory" {
-  source          = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//project-factory?ref=main"
-  project_objects = local.project_objects
+  for_each = local.active_org_policies
+
+  org_policies = each.value
 }

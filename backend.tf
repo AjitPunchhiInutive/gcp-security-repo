@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
     bucket = "itp-terraform-test"
-    prefix = "gcp-security-repo/state"
+    prefix = "gcp-security-foundation/state"
   }
 }

@@ -1,0 +1,14 @@
+deploy: false
+folder_id: null
+project_id: "sq-dev-test-prj-demo1"
+policy_boolean:
+  constraints/iam.disableServiceAccountKeyCreation: true
+  constraints/iam.NoServiceAccountExternalKeyCreation: true
+  constraints/iam.disableServiceAccountKeyUpload: false
+policy_list:
+  constraints/iam.allowedPolicyMemberDomains:
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "southwire.com"
