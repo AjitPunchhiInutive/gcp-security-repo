@@ -1,4 +1,4 @@
-deploy: true
+deploy: false
 folder_id: "1048391613319"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -46,9 +46,9 @@ policy_boolean:
   constraints/iam.disableServiceAccountCreation: true
 
   # ── IAM Managed (V2) ─────────────────────────────────────────────────────
-  constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true
+  #constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true
   constraints/iam.managed.disableServiceAccountApiKeyCreation: true
-  constraints/iam.managed.disableServiceAccountKeyCreation: true
+  #constraints/iam.managed.disableServiceAccountKeyCreation: true
 
   # ── AI Notebooks ─────────────────────────────────────────────────────────
   constraints/ainotebooks.disableRootAccess: true
@@ -60,7 +60,7 @@ policy_boolean:
   constraints/pubsub.enforceInTransitRegions: true
 
   # ── Dataflow Managed (V2) ─────────────────────────────────────────────────
-  constraints/dataflow.managed.blockProjectSshKeys: true
+  #constraints/dataflow.managed.blockProjectSshKeys: true
 
   # ── Datastream ───────────────────────────────────────────────────────────
   constraints/datastream.disablePublicConnectivity: true

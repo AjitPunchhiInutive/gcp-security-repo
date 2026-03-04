@@ -1,14 +1,232 @@
-
 deploy: true
-folder_id: "178656066119"
+folder_id: "1048391613319"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BOOLEAN POLICIES
+# true  = constraint ENFORCED
+# false = constraint NOT enforced
+# ─────────────────────────────────────────────────────────────────────────────
 policy_boolean:
-  constraints/iam.disableServiceAccountKeyCreation: true
-  constraints/iam.NoServiceAccountExternalKeyCreation: true
-  constraints/iam.disableServiceAccountKeyUpload: false
+
+  # ── Storage ───────────────────────────────────────────────────────────────
+  constraints/storage.publicAccessPrevention: true  # S.No: 2
+
+  # ── Compute ───────────────────────────────────────────────────────────────
+  constraints/compute.skipDefaultNetworkCreation: true  # S.No: 3
+  constraints/compute.disableGlobalCloudArmorPolicy: true  # S.No: 22
+  constraints/compute.disableHybridCloudIpv6: true  # S.No: 23
+  constraints/compute.disableInternetNetworkEndpointGroup: true  # S.No: 24
+  constraints/compute.disableVpcExternalIpv6: true  # S.No: 25
+  constraints/compute.disableVpcInternalIpv6: true  # S.No: 26
+  constraints/compute.disableAllIpv6: true  # S.No: 39
+  constraints/compute.disableGlobalSerialPortAccess: true  # S.No: 40
+  constraints/compute.disableGuestAttributesAccess: true  # S.No: 41
+  constraints/compute.disableSerialPortAccess: true  # S.No: 42
+  constraints/compute.disableSerialPortLogging: true  # S.No: 43
+  constraints/compute.requireOsConfig: true  # S.No: 46
+  constraints/compute.requireOsLogin: true  # S.No: 47
+  constraints/compute.requireShieldedVm: true  # S.No: 48
+  constraints/compute.setNewProjectDefaultToZonalDNSOnly: true  # S.No: 51
+  constraints/compute.restrictXpnProjectLienRemoval: true  # S.No: 53
+
+  # ── IAM ───────────────────────────────────────────────────────────────────
+  constraints/iam.disableAuditLoggingExemption: true  # S.No: 5
+  constraints/iam.automaticIamGrantsForDefaultServiceAccounts: true  # S.No: 7
+  constraints/iam.disableServiceAccountKeyUpload: true  # S.No: 19
+  constraints/iam.restrictCrossProjectServiceAccountLienRemoval: true  # S.No: 54
+
+  # ── IAM Managed (V2) ──────────────────────────────────────────────────────
+  constraints/iam.managed.disableServiceAccountKeyCreation: true  # S.No: 20
+  constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  # S.No: 52
+
+  # ── AI Notebooks ──────────────────────────────────────────────────────────
+  constraints/ainotebooks.disableRootAccess: true  # S.No: 11
+  constraints/ainotebooks.requireAutoUpgradeSchedule: true  # S.No: 12
+  constraints/ainotebooks.disableFileDownloads: true  # S.No: 13
+  constraints/ainotebooks.restrictPublicIp: true  # S.No: 14
+
+  # ── Pub/Sub ───────────────────────────────────────────────────────────────
+  constraints/pubsub.enforceInTransitRegions: true  # S.No: 15
+
+  # ── Datastream ────────────────────────────────────────────────────────────
+  constraints/datastream.disablePublicConnectivity: true  # S.No: 17
+
+  # ── Dataflow Managed (V2) ─────────────────────────────────────────────────
+  constraints/dataflow.managed.disableUsePublicIps: true  # S.No: 33
+  constraints/dataflow.managed.blockProjectSshKeys: true  # S.No: 34
+
+  # ── Cloud Run Managed (V2) ────────────────────────────────────────────────
+  constraints/run.managed.requireInvokerIam: true  # S.No: 37
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LIST POLICIES
+# status: true  + values       = ALLOW only listed values
+# status: false + values: []   = DENY ALL  (deny { all = true })
+# status: false + values: [...] = DENY listed values
+# ─────────────────────────────────────────────────────────────────────────────
 policy_list:
-  constraints/iam.allowedPolicyMemberDomains:
+
+  # ── GCP Resources ─────────────────────────────────────────────────────────
+  constraints/gcp.restrictServiceUsage:  # S.No: 1
     inherit_from_parent: false
     suggested_value: ""
     status: true
     values:
-      - "intuitive.cloud"
+      - "cloudbilling.googleapis.com"
+      - "cloudasset.googleapis.com"
+      - "cloudresourcemanager.googleapis.com"
+      - "compute.googleapis.com"
+      - "run.googleapis.com"
+      - "storage.googleapis.com"
+      - "bigquery.googleapis.com"
+      - "monitoring.googleapis.com"
+      - "logging.googleapis.com"
+      - "securitycenter.googleapis.com"
+      - "billingbudgets.googleapis.com"
+      - "dataplex.googleapis.com"
+      - "analyticshub.googleapis.com"
+      - "metastore.googleapis.com"
+      - "datastream.googleapis.com"
+      - "dataflow.googleapis.com"
+      - "pubsub.googleapis.com"
+
+  constraints/gcp.resourceLocations:  # S.No: 6
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "us-east4"
+      - "us-central1"
+
+  # ── Compute ───────────────────────────────────────────────────────────────
+  constraints/compute.vmExternalIpAccess:  # S.No: 4
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.restrictVpcPeering:  # S.No: 21
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.restrictCloudNATUsage:  # S.No: 27
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.restrictDedicatedInterconnectUsage:  # S.No: 28
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.restrictPartnerInterconnectUsage:  # S.No: 29
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.restrictVpnPeerIPs:  # S.No: 30
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.restrictLoadBalancerCreationForTypes:  # S.No: 31
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "in:INTERNAL"
+
+  constraints/compute.restrictSharedVpcHostProjects:  # S.No: 32
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.requireVpcFlowLogs:  # S.No: 44
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "COMPREHENSIVE"
+
+  constraints/compute.vmCanIpForward:  # S.No: 45
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/compute.managed.allowedVlanAttachmentEncryption:  # S.No: 49
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "IPSEC"
+
+  constraints/compute.requireSslPolicy:  # S.No: 50
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  # ── IAM ───────────────────────────────────────────────────────────────────
+  constraints/iam.serviceAccountKeyExpiryHours:  # S.No: 18
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "2160h"
+
+  # ── Storage ───────────────────────────────────────────────────────────────
+  constraints/storage.restrictAuthTypes:  # S.No: 16
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values:
+      - "in:ALL_HMAC_SIGNED_REQUESTS"
+
+  constraints/storage.softDeletePolicySeconds:  # S.No: 38
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "7776000"  # 90 days in seconds
+
+  # ── AI Notebooks ──────────────────────────────────────────────────────────
+  constraints/ainotebooks.accessMode:  # S.No: 8
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values:
+      - "service-account"
+
+  constraints/ainotebooks.environmentOptions:  # S.No: 9
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/ainotebooks.restrictVpcNetworks:  # S.No: 10
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  # ── Cloud Run ─────────────────────────────────────────────────────────────
+  constraints/run.allowedIngress:  # S.No: 35
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  constraints/run.allowedVPCEgress:  # S.No: 36
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
