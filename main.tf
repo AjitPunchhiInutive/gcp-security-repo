@@ -1,6 +1,7 @@
 locals {
   org_policy_config_files = [
     "sw-unified-data-platform/sw-unified-data-platform-folder.yaml",
+    "sw-ent-networking/sw-ent-networking-folder.yaml",
   ]
 
   active_org_policies = {
