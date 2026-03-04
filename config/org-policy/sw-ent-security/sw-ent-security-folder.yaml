@@ -1,0 +1,134 @@
+deploy: true
+folder_id: "1048391613319"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BOOLEAN POLICIES
+# true  = constraint ENFORCED
+# false = constraint NOT enforced
+# ─────────────────────────────────────────────────────────────────────────────
+policy_boolean:
+
+  # ── KMS ───────────────────────────────────────────────────────────────────
+  constraints/cloudkms.disableBeforeDestroy: true  # S.No: 3
+
+  # ── IAM ───────────────────────────────────────────────────────────────────
+  constraints/iam.disableAuditLoggingExemption: true  # S.No: 4
+  constraints/iam.automaticIamGrantsForDefaultServiceAccounts: true  # S.No: 8
+  constraints/iam.disableServiceAccountKeyUpload: true  # S.No: 11
+  constraints/iam.disableServiceAccountCreation: true  # S.No: 13
+  constraints/iam.restrictCrossProjectServiceAccountLienRemoval: true  # S.No: 27
+
+  # ── IAM Managed (V2) ──────────────────────────────────────────────────────
+  # COMMENTED: May already exist at org/parent level - uncomment for new org deployment
+  # constraints/iam.managed.disableServiceAccountKeyCreation: true  # S.No: 12
+  # constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  # S.No: 25
+
+  # ── GCP ───────────────────────────────────────────────────────────────────
+  constraints/gcp.detailedAuditLoggingMode: true  # S.No: 15
+
+  # ── Storage ───────────────────────────────────────────────────────────────
+  constraints/storage.publicAccessPrevention: true  # S.No: 16
+
+  # ── Compute ───────────────────────────────────────────────────────────────
+  # COMMENTED: Scoped to sw-unified-data-platform folder, not sw-ent-security
+  # constraints/compute.skipDefaultNetworkCreation: true  # S.No: 20
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LIST POLICIES
+# status: true  + values       = ALLOW only listed values
+# status: false + values: []   = DENY ALL  (deny { all = true })
+# status: false + values: [...] = DENY listed values
+# ─────────────────────────────────────────────────────────────────────────────
+policy_list:
+
+  # ── GCP Resources ─────────────────────────────────────────────────────────
+  constraints/gcp.restrictServiceUsage:  # S.No: 1
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "cloudbilling.googleapis.com"
+      - "cloudasset.googleapis.com"
+      - "cloudresourcemanager.googleapis.com"
+      - "compute.googleapis.com"
+      - "run.googleapis.com"
+      - "storage.googleapis.com"
+      - "bigquery.googleapis.com"
+      - "monitoring.googleapis.com"
+      - "logging.googleapis.com"
+      - "securitycenter.googleapis.com"
+      - "billingbudgets.googleapis.com"
+      - "dataplex.googleapis.com"
+      - "analyticshub.googleapis.com"
+      - "metastore.googleapis.com"
+      - "datastream.googleapis.com"
+      - "dataflow.googleapis.com"
+      - "pubsub.googleapis.com"
+
+  constraints/gcp.resourceLocations:  # S.No: 7
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "us-east4"
+      - "us-central1"
+
+  # ── KMS ───────────────────────────────────────────────────────────────────
+  constraints/cloudkms.minimumDestroyScheduledDuration:  # S.No: 2
+    inherit_from_parent: false
+    suggested_value: "90d"
+    status: true
+    values:
+      - "90d"
+
+  # ── IAM ───────────────────────────────────────────────────────────────────
+  constraints/iam.serviceAccountKeyExpiryHours:  # S.No: 9
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "2160h"
+
+  # ── Storage ───────────────────────────────────────────────────────────────
+  constraints/storage.softDeletePolicySeconds:  # S.No: 17
+    inherit_from_parent: false
+    suggested_value: ""
+    status: true
+    values:
+      - "7776000"
+
+  # ── Compute ───────────────────────────────────────────────────────────────
+  constraints/compute.restrictCloudNATUsage:  # S.No: 19
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+  # COMMENTED: Scoped to sw-unified-data-platform folder, not sw-ent-security
+  # constraints/compute.vmExternalIpAccess:  # S.No: 21
+  #   inherit_from_parent: false
+  #   suggested_value: ""
+  #   status: false
+  #   values: []
+
+  constraints/compute.vmCanIpForward:  # S.No: 23
+    inherit_from_parent: false
+    suggested_value: ""
+    status: false
+    values: []
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SKIPPED POLICIES (Inherited from org - no action needed)
+# ─────────────────────────────────────────────────────────────────────────────
+# S.No: 5  - constraints/iam.serviceAccountKeyExposureResponse (Inherit from org: DENY ALL)
+# S.No: 6  - constraints/vertexai.allowedPartnerModelFeatures (Inherit from org: DENY ALL)
+# S.No: 10 - constraints/iam.managed.disableServiceAccountApiKeyCreation (Inherit from org: ON)
+# S.No: 14 - constraints/commerceorggovernance.disablePublicMarketplace (Inherited from org: DENY ALL)
+# S.No: 18 - constraints/compute.managed.blockPreviewFeatures (Inherited from org: ON)
+# S.No: 22 - Empty row in source Excel
+# S.No: 24 - constraints/compute.sharedReservationsOwnerProjects (Inherited from org: DENY ALL)
+# S.No: 26 - constraints/iam.allowServiceAccountCredentialLifetimeExtension (Inherited from org: DENY ALL)
+# S.No: 28 - constraints/resourcemanager.allowedImportSources (Inherited from org: DENY ALL)
+# S.No: 29 - constraints/resourcemanager.allowedExportDestinations (Inherited from org: DENY ALL)
