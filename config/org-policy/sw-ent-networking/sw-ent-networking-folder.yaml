@@ -29,6 +29,9 @@ policy_boolean:
   constraints/compute.setNewProjectDefaultToZonalDNSOnly: true  # S.No: 51
   constraints/compute.restrictXpnProjectLienRemoval: true  # S.No: 53
 
+  # ── Compute Managed (V2) ──────────────────────────────────────────────────
+  constraints/compute.managed.allowedVlanAttachmentEncryption: true  # S.No: 49
+
   # ── IAM ───────────────────────────────────────────────────────────────────
   constraints/iam.disableAuditLoggingExemption: true  # S.No: 5
   constraints/iam.automaticIamGrantsForDefaultServiceAccounts: true  # S.No: 7
@@ -36,8 +39,9 @@ policy_boolean:
   constraints/iam.restrictCrossProjectServiceAccountLienRemoval: true  # S.No: 54
 
   # ── IAM Managed (V2) ──────────────────────────────────────────────────────
-  constraints/iam.managed.disableServiceAccountKeyCreation: true  # S.No: 20
-  constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  # S.No: 52
+  # COMMENTED: Already exists at org/parent level - uncomment for new org deployment
+  # constraints/iam.managed.disableServiceAccountKeyCreation: true  # S.No: 20
+  # constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts: true  # S.No: 52
 
   # ── AI Notebooks ──────────────────────────────────────────────────────────
   constraints/ainotebooks.disableRootAccess: true  # S.No: 11
@@ -53,7 +57,8 @@ policy_boolean:
 
   # ── Dataflow Managed (V2) ─────────────────────────────────────────────────
   constraints/dataflow.managed.disableUsePublicIps: true  # S.No: 33
-  constraints/dataflow.managed.blockProjectSshKeys: true  # S.No: 34
+  # COMMENTED: Already exists at org/parent level - uncomment for new org deployment
+  # constraints/dataflow.managed.blockProjectSshKeys: true  # S.No: 34
 
   # ── Cloud Run Managed (V2) ────────────────────────────────────────────────
   constraints/run.managed.requireInvokerIam: true  # S.No: 37
@@ -162,13 +167,6 @@ policy_list:
     status: false
     values: []
 
-  constraints/compute.managed.allowedVlanAttachmentEncryption:  # S.No: 49
-    inherit_from_parent: false
-    suggested_value: ""
-    status: true
-    values:
-      - "IPSEC"
-
   constraints/compute.requireSslPolicy:  # S.No: 50
     inherit_from_parent: false
     suggested_value: ""
@@ -196,7 +194,7 @@ policy_list:
     suggested_value: ""
     status: true
     values:
-      - "7776000"  # 90 days in seconds
+      - "7776000"
 
   # ── AI Notebooks ──────────────────────────────────────────────────────────
   constraints/ainotebooks.accessMode:  # S.No: 8
