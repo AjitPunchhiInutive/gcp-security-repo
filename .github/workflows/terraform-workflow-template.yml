@@ -60,7 +60,7 @@ jobs:
           # The module now routes .managed. constraints to V2 (google_org_policy_policy).
           stale=$(terraform state list 2>/dev/null | grep -E \
             '(google_folder_organization_policy|google_project_organization_policy)\.' | \
-            grep -E '"constraints/[^"]+\.managed\.')
+            grep -E '"constraints/[^"]+\.managed\.') || true
           if [ -z "$stale" ]; then
             echo "No stale .managed. V1 state entries found."
           else
