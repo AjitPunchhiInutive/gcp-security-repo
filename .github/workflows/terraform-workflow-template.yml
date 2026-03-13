@@ -70,6 +70,49 @@ jobs:
             done
           fi
 
+      - name: Import existing V2 managed and dry-run policies into state
+        run: |
+          # These V2 resources (google_org_policy_policy) already exist in GCP but may not be
+          # in Terraform state. Importing them prevents 409 "entity already exists" errors
+          # during apply. Safe to run every time — silently skipped if already in state.
+          FOLDER="1048391613319"
+
+          # ── UDP module: .managed. boolean policies (V1 state entries were removed above) ──
+          terraform import \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/compute.managed.allowedVlanAttachmentEncryption"]' \
+            "folders/${FOLDER}/policies/compute.managed.allowedVlanAttachmentEncryption" || true
+
+          terraform import \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.disableUsePublicIps"]' \
+            "folders/${FOLDER}/policies/dataflow.managed.disableUsePublicIps" || true
+
+          terraform import \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/run.managed.requireInvokerIam"]' \
+            "folders/${FOLDER}/policies/run.managed.requireInvokerIam" || true
+
+          # ── Networking module: .managed. boolean policies (never in state) ──────────────
+          terraform import \
+            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/compute.managed.allowedVlanAttachmentEncryption"]' \
+            "folders/${FOLDER}/policies/compute.managed.allowedVlanAttachmentEncryption" || true
+
+          terraform import \
+            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.disableUsePublicIps"]' \
+            "folders/${FOLDER}/policies/dataflow.managed.disableUsePublicIps" || true
+
+          terraform import \
+            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/run.managed.requireInvokerIam"]' \
+            "folders/${FOLDER}/policies/run.managed.requireInvokerIam" || true
+
+          # ── Networking module: gcp.restrictServiceUsage dry_run (never in state) ────────
+          terraform import \
+            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
+            "folders/${FOLDER}/policies/gcp.restrictServiceUsage" || true
+
+          # ── Security module: gcp.restrictServiceUsage dry_run (never in state) ─────────
+          terraform import \
+            'module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"].google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
+            "folders/${FOLDER}/policies/gcp.restrictServiceUsage" || true
+
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
 
@@ -191,7 +234,7 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Terraform Apply
-        run: terraform apply tfplan
+        run: terraform apply -parallelism=3 tfplan
 
       - name: Apply Complete
         run: |
