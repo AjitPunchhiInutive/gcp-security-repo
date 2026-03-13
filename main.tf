@@ -13,7 +13,7 @@ locals {
 }
 
 module "orgpolicy" {
-  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
+  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=feature/orgpolicy-dryrun"
 
   for_each = local.active_org_policies
 

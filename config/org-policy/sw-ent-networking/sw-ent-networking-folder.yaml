@@ -1,4 +1,4 @@
-deploy: false
+deploy: true
 folder_id: "1048391613319"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -77,6 +77,7 @@ policy_list:
     inherit_from_parent: false
     suggested_value: ""
     status: true
+    dry_run: true
     values:
       - "cloudbilling.googleapis.com"
       - "cloudasset.googleapis.com"
