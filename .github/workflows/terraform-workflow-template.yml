@@ -64,10 +64,10 @@ jobs:
           if [ -z "$stale" ]; then
             echo "No stale .managed. V1 state entries found."
           else
-            echo "$stale" | while IFS= read -r resource; do
+            while IFS= read -r resource; do
               echo "Removing stale V1 state entry: $resource"
-              terraform state rm "$resource"
-            done
+              terraform state rm "$resource" || true
+            done <<< "$stale"
           fi
 
       - name: Import existing V2 managed and dry-run policies into state
