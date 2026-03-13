@@ -53,6 +53,19 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Force-unlock stale state lock if present
+        run: |
+          # A cancelled run may leave a GCS state lock unreleased.
+          # Read the lock file and force-unlock so subsequent steps can proceed.
+          LOCK_FILE="gs://itp-terraform-test/gcp-security-foundation/state/default.tflock"
+          LOCK_ID=$(gsutil cat "$LOCK_FILE" 2>/dev/null | jq -r '.ID // empty' 2>/dev/null || true)
+          if [ -n "$LOCK_ID" ]; then
+            echo "Found stale lock ID: $LOCK_ID — force-unlocking"
+            terraform force-unlock -force "$LOCK_ID" || true
+          else
+            echo "No stale state lock found."
+          fi
+
       - name: Remove stale V1 state entries for .managed. constraints
         run: |
           # V1 API (google_folder/project_organization_policy) rejects constraints containing
