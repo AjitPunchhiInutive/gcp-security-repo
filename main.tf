@@ -1,21 +1,41 @@
 locals {
-  org_policy_config_files = [
-    "sw-unified-data-platform/sw-unified-data-platform-folder.yaml",
-    "sw-ent-networking/sw-ent-networking-folder.yaml",
-    "sw-ent-security/sw-ent-security-folder.yaml",
-  ]
-
-  active_org_policies = {
-    for f in local.org_policy_config_files :
-    f => yamldecode(file("config/org-policy/${f}"))
-    if lookup(yamldecode(file("config/org-policy/${f}")), "deploy", false) == true
-  }
+  udp_yaml        = yamldecode(file("config/org-policy/sw-unified-data-platform/sw-unified-data-platform-folder.yaml"))
+  networking_yaml = yamldecode(file("config/org-policy/sw-ent-networking/sw-ent-networking-folder.yaml"))
+  security_yaml   = yamldecode(file("config/org-policy/sw-ent-security/sw-ent-security-folder.yaml"))
 }
 
-module "orgpolicy" {
-  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=feature/orgpolicy-dryrun"
+# Modules are chained via depends_on to serialize GCP org policy API writes.
+# All three folders share the same ID in the test environment, so concurrent
+# writes cause 409 "aborted" errors. In production each folder ID is unique.
 
-  for_each = local.active_org_policies
+module "orgpolicy_udp" {
+  source       = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=feature/orgpolicy-dryrun"
+  org_policies = local.udp_yaml
+}
 
-  org_policies = each.value
+module "orgpolicy_networking" {
+  source       = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=feature/orgpolicy-dryrun"
+  org_policies = local.networking_yaml
+  depends_on   = [module.orgpolicy_udp]
+}
+
+module "orgpolicy_security" {
+  source       = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=feature/orgpolicy-dryrun"
+  org_policies = local.security_yaml
+  depends_on   = [module.orgpolicy_networking]
+}
+
+# Migrate state from the old for_each module to the new explicit modules.
+# No resources are destroyed — this is a rename-only operation.
+moved {
+  from = module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"]
+  to   = module.orgpolicy_udp
+}
+moved {
+  from = module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"]
+  to   = module.orgpolicy_networking
+}
+moved {
+  from = module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"]
+  to   = module.orgpolicy_security
 }

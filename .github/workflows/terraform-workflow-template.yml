@@ -92,40 +92,45 @@ jobs:
 
           TFVARS="-var-file=gcp-security-repo.tfvars -lock=false"
 
-          # ── UDP module: .managed. boolean policies (V1 state entries were removed above) ──
+          # ── UDP module: .managed. boolean policies ────────────────────────────────────────
           terraform import $TFVARS \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/compute.managed.allowedVlanAttachmentEncryption"]' \
+            'module.orgpolicy_udp.google_org_policy_policy.managed_boolean_policies["constraints/compute.managed.allowedVlanAttachmentEncryption"]' \
             "folders/${FOLDER}/policies/compute.managed.allowedVlanAttachmentEncryption" || true
 
           terraform import $TFVARS \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.disableUsePublicIps"]' \
+            'module.orgpolicy_udp.google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.disableUsePublicIps"]' \
             "folders/${FOLDER}/policies/dataflow.managed.disableUsePublicIps" || true
 
           terraform import $TFVARS \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/run.managed.requireInvokerIam"]' \
+            'module.orgpolicy_udp.google_org_policy_policy.managed_boolean_policies["constraints/run.managed.requireInvokerIam"]' \
             "folders/${FOLDER}/policies/run.managed.requireInvokerIam" || true
 
-          # ── Networking module: .managed. boolean policies (never in state) ──────────────
+          # ── UDP module: gcp.restrictServiceUsage dry_run ──────────────────────────────────
           terraform import $TFVARS \
-            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/compute.managed.allowedVlanAttachmentEncryption"]' \
-            "folders/${FOLDER}/policies/compute.managed.allowedVlanAttachmentEncryption" || true
-
-          terraform import $TFVARS \
-            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.disableUsePublicIps"]' \
-            "folders/${FOLDER}/policies/dataflow.managed.disableUsePublicIps" || true
-
-          terraform import $TFVARS \
-            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/run.managed.requireInvokerIam"]' \
-            "folders/${FOLDER}/policies/run.managed.requireInvokerIam" || true
-
-          # ── Networking module: gcp.restrictServiceUsage dry_run (never in state) ────────
-          terraform import $TFVARS \
-            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"].google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
+            'module.orgpolicy_udp.google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
             "folders/${FOLDER}/policies/gcp.restrictServiceUsage" || true
 
-          # ── Security module: gcp.restrictServiceUsage dry_run (never in state) ─────────
+          # ── Networking module: .managed. boolean policies ─────────────────────────────────
           terraform import $TFVARS \
-            'module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"].google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
+            'module.orgpolicy_networking.google_org_policy_policy.managed_boolean_policies["constraints/compute.managed.allowedVlanAttachmentEncryption"]' \
+            "folders/${FOLDER}/policies/compute.managed.allowedVlanAttachmentEncryption" || true
+
+          terraform import $TFVARS \
+            'module.orgpolicy_networking.google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.disableUsePublicIps"]' \
+            "folders/${FOLDER}/policies/dataflow.managed.disableUsePublicIps" || true
+
+          terraform import $TFVARS \
+            'module.orgpolicy_networking.google_org_policy_policy.managed_boolean_policies["constraints/run.managed.requireInvokerIam"]' \
+            "folders/${FOLDER}/policies/run.managed.requireInvokerIam" || true
+
+          # ── Networking module: gcp.restrictServiceUsage dry_run ───────────────────────────
+          terraform import $TFVARS \
+            'module.orgpolicy_networking.google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
+            "folders/${FOLDER}/policies/gcp.restrictServiceUsage" || true
+
+          # ── Security module: gcp.restrictServiceUsage dry_run ─────────────────────────────
+          terraform import $TFVARS \
+            'module.orgpolicy_security.google_org_policy_policy.folder_list_dryrun_policies["constraints/gcp.restrictServiceUsage"]' \
             "folders/${FOLDER}/policies/gcp.restrictServiceUsage" || true
 
       - name: Terraform Plan
