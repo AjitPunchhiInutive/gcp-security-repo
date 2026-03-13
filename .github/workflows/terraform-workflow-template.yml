@@ -249,7 +249,7 @@ jobs:
           path: ${{ env.WORKING_DIR }}
 
       - name: Terraform Apply
-        run: terraform apply -parallelism=3 tfplan
+        run: terraform apply -parallelism=1 tfplan
 
       - name: Apply Complete
         run: |
