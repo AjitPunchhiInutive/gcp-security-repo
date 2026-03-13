@@ -53,21 +53,22 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Remove Old V1 Org Policy State file
+      - name: Remove stale V1 state entries for .managed. constraints
         run: |
-          # Remove old V1 folder policy state entries if they exist
-          for resource in \
-            'module.orgpolicy["1"].google_folder_organization_policy.boolean_policies' \
-            'module.orgpolicy["1"].google_folder_organization_policy.list_policies' \
-            'module.orgpolicy["1"].google_project_organization_policy.boolean_policies' \
-            'module.orgpolicy["1"].google_project_organization_policy.list_policies'; do
-            if terraform state list | grep -qF "$resource"; then
-              echo "Removing: $resource"
+          # V1 API (google_folder/project_organization_policy) rejects constraints containing
+          # ".managed." — remove any such stale state entries so the plan refresh doesn't fail.
+          # The module now routes .managed. constraints to V2 (google_org_policy_policy).
+          stale=$(terraform state list 2>/dev/null | grep -E \
+            '(google_folder_organization_policy|google_project_organization_policy)\.' | \
+            grep -E '"constraints/[^"]+\.managed\.')
+          if [ -z "$stale" ]; then
+            echo "No stale .managed. V1 state entries found."
+          else
+            echo "$stale" | while IFS= read -r resource; do
+              echo "Removing stale V1 state entry: $resource"
               terraform state rm "$resource"
-            else
-              echo "Not found in state (skipping): $resource"
-            fi
-          done
+            done
+          fi
 
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
