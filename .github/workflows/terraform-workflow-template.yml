@@ -56,14 +56,14 @@ jobs:
       - name: Force-unlock stale state lock if present
         run: |
           # A cancelled run may leave a GCS state lock unreleased.
-          # Delete the lock file directly from GCS — more reliable than terraform force-unlock.
+          # Try both gcloud storage (WIF-native) and gsutil to cover auth differences.
           LOCK_FILE="gs://itp-terraform-test/gcp-security-foundation/state/default.tflock"
-          if gsutil stat "$LOCK_FILE" 2>/dev/null; then
-            echo "Found stale state lock — removing from GCS"
-            gsutil rm "$LOCK_FILE"
-            echo "Lock removed."
+          if gcloud storage rm "$LOCK_FILE" --quiet 2>/dev/null; then
+            echo "Lock removed via gcloud storage rm."
+          elif gsutil rm "$LOCK_FILE" 2>/dev/null; then
+            echo "Lock removed via gsutil rm."
           else
-            echo "No stale state lock found."
+            echo "No stale state lock found (or already removed)."
           fi
 
       - name: Remove stale V1 state entries for .managed. constraints
@@ -71,7 +71,7 @@ jobs:
           # V1 API (google_folder/project_organization_policy) rejects constraints containing
           # ".managed." — remove any such stale state entries so the plan refresh doesn't fail.
           # The module now routes .managed. constraints to V2 (google_org_policy_policy).
-          stale=$(terraform state list 2>/dev/null | grep -E \
+          stale=$(terraform state list -lock=false 2>/dev/null | grep -E \
             '(google_folder_organization_policy|google_project_organization_policy)\.' | \
             grep -E '"constraints/[^"]+\.managed\.') || true
           if [ -z "$stale" ]; then
@@ -79,7 +79,7 @@ jobs:
           else
             while IFS= read -r resource; do
               echo "Removing stale V1 state entry: $resource"
-              terraform state rm "$resource" || true
+              terraform state rm -lock=false "$resource" || true
             done <<< "$stale"
           fi
 
@@ -90,7 +90,7 @@ jobs:
           # during apply. Safe to run every time — silently skipped if already in state.
           FOLDER="1048391613319"
 
-          TFVARS="-var-file=gcp-security-repo.tfvars"
+          TFVARS="-var-file=gcp-security-repo.tfvars -lock=false"
 
           # ── UDP module: .managed. boolean policies (V1 state entries were removed above) ──
           terraform import $TFVARS \
@@ -129,7 +129,7 @@ jobs:
             "folders/${FOLDER}/policies/gcp.restrictServiceUsage" || true
 
       - name: Terraform Plan
-        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
+        run: terraform plan -lock=false -var-file=gcp-security-repo.tfvars -out=tfplan
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
@@ -196,7 +196,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
+        run: terraform plan -lock=false -var-file=gcp-security-repo.tfvars -out=tfplan
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
