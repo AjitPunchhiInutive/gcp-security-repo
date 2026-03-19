@@ -1,0 +1,12 @@
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Project-level org policy overrides for sw-ent-networking host projects.
+# IMP: enable-oslogin metadata key must also be deleted from each project —
+# managed via Terraform in disable_oslogin_metadata.tf
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── DEV host project ──────────────────────────────────────────────────────────
+# TODO: Verify project_id is correct before applying — confirm via GCP Console or gcloud projects list
+- project_id: "intuitive-cloud-eng-sandbox"
+  policy_boolean:
+    constraints/compute.requireOsLogin: false
