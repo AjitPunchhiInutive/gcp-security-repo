@@ -1,12 +1,35 @@
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Project-level org policy overrides for sw-ent-networking host projects.
-# IMP: enable-oslogin metadata key must also be deleted from each project —
-# managed via Terraform in disable_oslogin_metadata.tf
+# 17/3: requireOsLogin disabled to facilitate SSH key usage.
+# 19/3: softDeletePolicySeconds overridden — DEV: 0 days, TEST: 7 days.
+# 24/3: retentionPolicySeconds allow-all for intuitive-cloud-eng-sandbox.
 # ─────────────────────────────────────────────────────────────────────────────
-
-# ── DEV host project ──────────────────────────────────────────────────────────
-# TODO: Verify project_id is correct before applying — confirm via GCP Console or gcloud projects list
-- project_id: "intuitive-cloud-eng-sandbox"
+ 
+- project_id: "gcp-dev-udp-host-net"
   policy_boolean:
     constraints/compute.requireOsLogin: false
+  policy_list:
+    constraints/storage.softDeletePolicySeconds:
+      inherit_from_parent: false
+      suggested_value: ""
+      status: true
+      values:
+        - "0"
+ 
+- project_id: "gcp-test-udp-host-net"
+  policy_boolean:
+    constraints/compute.requireOsLogin: false
+  policy_list:
+    constraints/storage.softDeletePolicySeconds:
+      inherit_from_parent: false
+      suggested_value: ""
+      status: true
+      values:
+        - "604800"
+
+- project_id: "intuitive-cloud-eng-sandbox"
+  policy_list:
+    constraints/storage.retentionPolicySeconds:
+      inherit_from_parent: false
+      suggested_value: ""
+      status: true
+      values: []
