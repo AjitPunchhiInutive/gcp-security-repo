@@ -155,11 +155,6 @@ jobs:
           path: ${{ env.WORKING_DIR }}/tfplan
           retention-days: 1
 
-
-          name:            tfplan-after-approval
-          path:            ${{ env.WORKING_DIR }}/tfplan
-          retention-days:  1
-
 # ─────────────────────────────────────────────────────────────────────────────
 # APPLY — Runs after the second plan succeeds
 # Imports existing GCP resources into state before applying (idempotent)
