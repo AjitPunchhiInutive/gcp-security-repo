@@ -90,6 +90,15 @@ jobs:
             || echo "module.orgpolicy_udp not in state, skipping"
           echo "Migration complete"
 
+      - name: Remove deploy=false modules from state (managed elsewhere)
+        run: |
+          echo "Removing modules with deploy=false from state so they are not destroyed..."
+          terraform state rm 'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"]' \
+            || echo "sw-ent-networking not in state, skipping"
+          terraform state rm 'module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"]' \
+            || echo "sw-ent-security not in state, skipping"
+          echo "Done"
+
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
 
