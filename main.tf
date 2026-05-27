@@ -3,6 +3,7 @@ locals {
     "sw-unified-data-platform/sw-unified-data-platform-folder.yaml",
     "sw-ent-networking/sw-ent-networking-folder.yaml",
     "sw-ent-security/sw-ent-security-folder.yaml",
+    "custom_policy.yaml",
   ]
 
   active_org_policies = {
@@ -13,7 +14,7 @@ locals {
 }
 
 module "orgpolicy" {
-  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=main"
+  source = "git@github.com:AjitPunchhiInutive/-sw-prod-udp-rds-infra-modules.git//orgpolicy?ref=custom-org-policy"
 
   for_each = local.active_org_policies
 
