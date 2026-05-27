@@ -54,6 +54,12 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Clear stale state lock if present
+        run: |
+          gsutil rm gs://itp-terraform-test/gcp-security-foundation/state/default.tflock \
+            && echo "Stale lock removed" \
+            || echo "No stale lock found"
+
       - name: Terraform Validate
         run: terraform validate
 
