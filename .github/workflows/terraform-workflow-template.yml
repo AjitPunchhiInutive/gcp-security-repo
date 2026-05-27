@@ -238,17 +238,17 @@ jobs:
           echo "(silently skipped if already imported)"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-          terraform import \
+          terraform import -var-file=gcp-security-repo.tfvars \
             'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.disableServiceAccountKeyCreation"]' \
             folders/1048391613319/policies/iam.managed.disableServiceAccountKeyCreation \
             || true
 
-          terraform import \
+          terraform import -var-file=gcp-security-repo.tfvars \
             'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.blockProjectSshKeys"]' \
             folders/1048391613319/policies/dataflow.managed.blockProjectSshKeys \
             || true
 
-          terraform import \
+          terraform import -var-file=gcp-security-repo.tfvars \
             'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts"]' \
             folders/1048391613319/policies/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts \
             || true
