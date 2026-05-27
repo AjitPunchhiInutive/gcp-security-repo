@@ -54,7 +54,7 @@ jobs:
 
       - name: Clear stale state lock if present
         run: |
-          gsutil rm gs://itp-terraform-test/gcp-security-foundation/state/default.tflock \
+          gcloud storage rm gs://itp-terraform-test/gcp-security-foundation/state/default.tflock \
             && echo "Stale lock removed" \
             || echo "No stale lock found"
 
