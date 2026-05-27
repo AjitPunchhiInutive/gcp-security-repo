@@ -73,6 +73,23 @@ jobs:
             fi
           done
 
+      - name: Migrate module state (renamed modules to for_each instances)
+        run: |
+          echo "Migrating old named module addresses to for_each instances..."
+          terraform state mv \
+            'module.orgpolicy_networking' \
+            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"]' \
+            || echo "module.orgpolicy_networking not in state, skipping"
+          terraform state mv \
+            'module.orgpolicy_security' \
+            'module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"]' \
+            || echo "module.orgpolicy_security not in state, skipping"
+          terraform state mv \
+            'module.orgpolicy_udp' \
+            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"]' \
+            || echo "module.orgpolicy_udp not in state, skipping"
+          echo "Migration complete"
+
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
 
