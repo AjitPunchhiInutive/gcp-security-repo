@@ -20,3 +20,19 @@ module "orgpolicy" {
 
   org_policies = each.value
 }
+
+# ── State migration: renamed modules → for_each instances ────────────────────
+moved {
+  from = module.orgpolicy_networking
+  to   = module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"]
+}
+
+moved {
+  from = module.orgpolicy_security
+  to   = module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"]
+}
+
+moved {
+  from = module.orgpolicy_udp
+  to   = module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"]
+}
