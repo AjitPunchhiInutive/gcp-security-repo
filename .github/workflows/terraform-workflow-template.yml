@@ -58,6 +58,15 @@ jobs:
             && echo "Stale lock removed" \
             || echo "No stale lock found"
 
+      - name: Import existing custom constraints (if not in state)
+        run: |
+          terraform import -var-file=gcp-security-repo.tfvars \
+            'module.orgpolicy["custom_policy.yaml"].google_org_policy_custom_constraint.custom_policies["custom.enforceDataExchangeDiscovery"]' \
+            organizations/203589767236/customConstraints/custom.enforceDataExchangeDiscovery 2>/dev/null || true
+          terraform import -var-file=gcp-security-repo.tfvars \
+            'module.orgpolicy["custom_policy.yaml"].google_org_policy_custom_constraint.custom_policies["custom.noPublicListing"]' \
+            organizations/203589767236/customConstraints/custom.noPublicListing 2>/dev/null || true
+
       - name: Terraform Validate
         run: terraform validate
 
@@ -128,6 +137,15 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+
+      - name: Import existing custom constraints (if not in state)
+        run: |
+          terraform import -var-file=gcp-security-repo.tfvars \
+            'module.orgpolicy["custom_policy.yaml"].google_org_policy_custom_constraint.custom_policies["custom.enforceDataExchangeDiscovery"]' \
+            organizations/203589767236/customConstraints/custom.enforceDataExchangeDiscovery 2>/dev/null || true
+          terraform import -var-file=gcp-security-repo.tfvars \
+            'module.orgpolicy["custom_policy.yaml"].google_org_policy_custom_constraint.custom_policies["custom.noPublicListing"]' \
+            organizations/203589767236/customConstraints/custom.noPublicListing 2>/dev/null || true
 
       - name: Terraform Validate
         run: terraform validate
