@@ -1,0 +1,24 @@
+deploy: true
+org_id: "203589767236"
+policy_custom:
+
+  # ── Analytics Hub ─────────────────────────────────────────────────────────
+  - name: organizations/203589767236/customConstraints/custom.enforceDataExchangeDiscovery
+    resource_types: analyticshub.googleapis.com/DataExchange
+    method_types:
+      - CREATE
+      - UPDATE
+    condition: resource.discoveryType == 'DISCOVERY_TYPE_PUBLIC'
+    action_type: DENY
+    display_name: Reject public DataExchanges.
+    description: All DataExchange resources must be private.
+
+  - name: organizations/203589767236/customConstraints/custom.noPublicListing
+    resource_types: analyticshub.googleapis.com/Listing
+    method_types:
+      - CREATE
+      - UPDATE
+    condition: resource.discoveryType == 'DISCOVERY_TYPE_PUBLIC'
+    action_type: DENY
+    display_name: Reject public Listings.
+    description: All Listing resources must be undiscoverable.
