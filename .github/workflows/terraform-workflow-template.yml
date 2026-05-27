@@ -11,7 +11,6 @@ on:
 env:
   TF_VERSION: "1.6.3"
   WORKING_DIR: "."
-  TFSEC_VERSION: "1.28.6"
 
 jobs:
 
@@ -24,7 +23,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      security-events: write
       actions: read
     defaults:
       run:
@@ -63,57 +61,15 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Remove Old V1 Org Policy State file
-        run: |
-          # Remove old V1 folder policy state entries if they exist
-          for resource in \
-            'module.orgpolicy["1"].google_folder_organization_policy.boolean_policies' \
-            'module.orgpolicy["1"].google_folder_organization_policy.list_policies' \
-            'module.orgpolicy["1"].google_project_organization_policy.boolean_policies' \
-            'module.orgpolicy["1"].google_project_organization_policy.list_policies'; do
-            if terraform state list | grep -qF "$resource"; then
-              echo "Removing: $resource"
-              terraform state rm "$resource"
-            else
-              echo "Not found in state (skipping): $resource"
-            fi
-          done
-
-      - name: Migrate module state (renamed modules to for_each instances)
-        run: |
-          echo "Migrating old named module addresses to for_each instances..."
-          terraform state mv \
-            'module.orgpolicy_networking' \
-            'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"]' \
-            || echo "module.orgpolicy_networking not in state, skipping"
-          terraform state mv \
-            'module.orgpolicy_security' \
-            'module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"]' \
-            || echo "module.orgpolicy_security not in state, skipping"
-          terraform state mv \
-            'module.orgpolicy_udp' \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"]' \
-            || echo "module.orgpolicy_udp not in state, skipping"
-          echo "Migration complete"
-
-      - name: Remove deploy=false modules from state (managed elsewhere)
-        run: |
-          echo "Removing modules with deploy=false from state so they are not destroyed..."
-          terraform state rm 'module.orgpolicy["sw-ent-networking/sw-ent-networking-folder.yaml"]' \
-            || echo "sw-ent-networking not in state, skipping"
-          terraform state rm 'module.orgpolicy["sw-ent-security/sw-ent-security-folder.yaml"]' \
-            || echo "sw-ent-security not in state, skipping"
-          echo "Done"
-
       - name: Terraform Plan
         run: terraform plan -var-file=gcp-security-repo.tfvars -out=tfplan
 
       - name: Upload Plan Artifact
         uses: actions/upload-artifact@v4
         with:
-          name:            tfplan
-          path:            ${{ env.WORKING_DIR }}/tfplan
-          retention-days:  1
+          name: tfplan
+          path: ${{ env.WORKING_DIR }}/tfplan
+          retention-days: 1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # APPROVAL GATE
@@ -133,7 +89,6 @@ jobs:
           echo "  Approval Required"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo " Approval granted - proceeding to apply"
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PLAN (POST APPROVAL) — Fresh plan after approval gate
@@ -188,9 +143,7 @@ jobs:
           retention-days: 1
 
 # ─────────────────────────────────────────────────────────────────────────────
-# APPLY — Runs after the second plan succeeds
-# Imports existing GCP resources into state before applying (idempotent)
-# This permanently resolves 409 "entity already exists" errors
+# APPLY
 # ─────────────────────────────────────────────────────────────────────────────
   terraform-apply:
     name: Terraform Apply
@@ -227,33 +180,6 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
-
-      # ── Import existing managed policies into state (idempotent) ──────────
-      # Uses || true so steps are silently skipped if already in state.
-      # Safe to run on every apply — will never overwrite or break anything.
-      - name: Import existing managed boolean policies into state
-        run: |
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Importing existing GCP policies into Terraform state"
-          echo "(silently skipped if already imported)"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-
-          terraform import -var-file=gcp-security-repo.tfvars \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.disableServiceAccountKeyCreation"]' \
-            folders/1048391613319/policies/iam.managed.disableServiceAccountKeyCreation \
-            || true
-
-          terraform import -var-file=gcp-security-repo.tfvars \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/dataflow.managed.blockProjectSshKeys"]' \
-            folders/1048391613319/policies/dataflow.managed.blockProjectSshKeys \
-            || true
-
-          terraform import -var-file=gcp-security-repo.tfvars \
-            'module.orgpolicy["sw-unified-data-platform/sw-unified-data-platform-folder.yaml"].google_org_policy_policy.managed_boolean_policies["constraints/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts"]' \
-            folders/1048391613319/policies/iam.managed.preventPrivilegedBasicRolesForDefaultServiceAccounts \
-            || true
-
-          echo "Import step complete"
 
       - name: Download Plan Artifact
         uses: actions/download-artifact@v4
